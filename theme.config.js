@@ -1,14 +1,21 @@
 /** @type {const} */
+// OneVox / OneAI brand palette. The app is dark-first, so light and dark
+// share the same values to keep the identity consistent across schemes.
 const themeColors = {
-  primary: { light: '#0a7ea4', dark: '#0a7ea4' },
-  background: { light: '#ffffff', dark: '#151718' },
-  surface: { light: '#f5f5f5', dark: '#1e2022' },
-  foreground: { light: '#11181C', dark: '#ECEDEE' },
-  muted: { light: '#687076', dark: '#9BA1A6' },
-  border: { light: '#E5E7EB', dark: '#334155' },
-  success: { light: '#22C55E', dark: '#4ADE80' },
-  warning: { light: '#F59E0B', dark: '#FBBF24' },
-  error: { light: '#EF4444', dark: '#F87171' },
+  primary: { light: '#34D8A0', dark: '#34D8A0' }, // green accent (start of gradient)
+  secondary: { light: '#3AAEE6', dark: '#3AAEE6' }, // cyan accent (end of gradient)
+  background: { light: '#0A1628', dark: '#0A1628' }, // deep navy (almost black)
+  surface: { light: '#101F38', dark: '#101F38' }, // cards / inputs
+  surfaceElevated: { light: '#16263F', dark: '#16263F' }, // highlighted cards
+  foreground: { light: '#FFFFFF', dark: '#FFFFFF' }, // primary text
+  muted: { light: '#8A9BB5', dark: '#8A9BB5' }, // secondary text
+  border: { light: '#22354F', dark: '#22354F' }, // borders / dividers
+  success: { light: '#34D399', dark: '#34D399' }, // positive (Sim)
+  warning: { light: '#FBBF24', dark: '#FBBF24' },
+  error: { light: '#F87171', dark: '#F87171' }, // negative (Não)
 };
 
-module.exports = { themeColors };
+// Brand gradient (green -> cyan), reused by buttons, borders and accents.
+const brandGradient = ['#5DE89B', '#34D8A0', '#3AAEE6'];
+
+module.exports = { themeColors, brandGradient };

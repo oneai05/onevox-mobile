@@ -1,0 +1,51 @@
+# OneVox Mobile — TODO
+
+## Base / Design System
+- [x] Configurar tema (cores OneAI: fundo escuro, gradiente verde/ciano) em theme.config.js
+- [x] Criar componente de gradiente reutilizável (GradientButton / GradientBorder / GradientText)
+- [x] Configurar tab bar com 4 abas (Teclado, Gravar, Frases, Perfil) e ícones
+- [x] Gerar e aplicar logo do app (icon, splash, favicon, android)
+- [x] Atualizar app.config.ts (appName, logoUrl)
+
+## Aba Teclado
+- [x] Layout: cabeçalho OneVox, área de texto grande, botão One AI central, ações rápidas
+- [x] Botão One AI gera áudio via ElevenLabs (voz clonada) e reproduz
+- [x] Botões Sim / Não falam imediatamente
+- [x] Botões Limpar / Desfazer funcionam
+- [x] Opção de interpretar/reescrever texto com IA antes de falar
+
+## Aba Gravar
+- [x] Estado inicial (microfone + instrução)
+- [x] Estado gravando (tempo + parar)
+- [x] Captura de áudio (expo-audio recording)
+- [x] Upload do áudio + transcrição (Whisper)
+- [x] Interpretação/reescrita com IA (mensagem clara)
+- [x] Estado resultado (fala original + mensagem clara + reproduzir)
+- [x] Reproduzir com voz clonada (ElevenLabs)
+- [x] Ações: Gravar novamente, Falar original
+
+## Aba Frases
+- [x] Categorias (Saúde, Necessidades, Social, Emergência)
+- [x] Lista de cards de frases com ícone
+- [x] Tocar card fala a frase com voz clonada
+- [x] Persistência local de frases (AsyncStorage) + adicionar/remover
+
+## Aba Perfil
+- [x] Cabeçalho / wordmark
+- [x] Card Minha Voz Clonada (status ativo + testar + trocar voz)
+- [x] Opções: Reescrita automática (IA), Acessibilidade, Histórico, Sobre
+- [x] Ajustes de acessibilidade (tamanho de fonte)
+
+## Backend / Integrações
+- [x] tRPC: rota generateSpeech (ElevenLabs TTS com voiceId)
+- [x] tRPC: rota transcribe (Whisper) + interpret (LLM)
+- [x] Validar credencial ElevenLabs (voz clonada funcionando apos upgrade Starter)
+- [x] Armazenar voiceId por usuário (Roberto Dias: GMafEIaeEWpGsrYrVqCX) via store
+- [x] Store de configuracoes/historico/frases (AsyncStorage)
+- [x] Hook central de fala (use-speech)
+
+## Qualidade
+- [x] Testes vitest das rotas ElevenLabs
+- [x] Teste vitest da interpretacao com IA (reescrita)
+- [x] Verificar status / sem erros TS
+- [x] Checkpoint inicial
