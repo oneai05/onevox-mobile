@@ -1,31 +1,21 @@
 import React from "react";
-import { Image, StyleSheet, Text, View, type ViewStyle, type TextStyle } from "react-native";
+import { StyleSheet, Text, View, type ViewStyle, type TextStyle } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 
 import { brandGradient } from "@/theme.config";
 
-const ONEAI_LOGO = require("@/assets/images/Logo enquadrado.jpeg");
-
 /**
- * Wordmark with the OneAI logo, "OneVox" (Vox in brand gradient) and a "Mobile" pill.
+ * Wordmark with "OneVox" and "Mobile" centered below it.
  */
 export function OneVoxWordmark({ size = 28, subtitle }: { size?: number; subtitle?: string }) {
-  const logoSize = Math.round(size * 1.5);
   return (
     <View style={styles.wordmarkWrap}>
       <View style={styles.row}>
-        <Image
-          source={ONEAI_LOGO}
-          style={{ width: logoSize, height: logoSize, borderRadius: logoSize / 2, marginRight: 10 }}
-          resizeMode="cover"
-        />
         <Text style={[styles.word, { fontSize: size }]}>One</Text>
         <GradientText text="Vox" style={{ fontSize: size, fontWeight: "800" }} />
-        <View style={styles.mobilePill}>
-          <Text style={[styles.mobileText, { fontSize: Math.round(size * 0.42) }]}>MOBILE</Text>
-        </View>
       </View>
+      <Text style={[styles.mobileText, { fontSize: Math.round(size * 0.52) }]}>Mobile</Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
     </View>
   );
@@ -90,24 +80,16 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
   word: {
     color: "#FFFFFF",
     fontWeight: "800",
   },
-  mobilePill: {
-    marginLeft: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#34D8A0",
-    alignSelf: "center",
-  },
   mobileText: {
-    color: "#34D8A0",
-    fontWeight: "700",
-    letterSpacing: 1.5,
+    color: "#C7CEDB",
+    fontWeight: "500",
+    marginTop: -3,
   },
   subtitle: {
     color: "#8A9BB5",
