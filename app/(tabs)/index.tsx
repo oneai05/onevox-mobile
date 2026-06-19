@@ -178,7 +178,10 @@ export default function TecladoScreen() {
               style={styles.speakRing}
             >
               <View style={[styles.speakLogoInner, { backgroundColor: colors.background }]}>
-                <Image source={ONEAI_LOGO} style={styles.speakLogo} resizeMode="contain" />
+                <View style={styles.speakSymbolClip}>
+                  <Image source={ONEAI_LOGO} style={styles.speakSymbol} resizeMode="cover" />
+                </View>
+                <Text style={styles.speakLogoText}>OneAI</Text>
                 {state === "generating" ? (
                   <View style={styles.speakLoadingOverlay}>
                     <ActivityIndicator color={colors.primary} size="large" />
@@ -347,11 +350,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     overflow: "hidden",
   },
-  speakLogo: {
-    width: "82%",
-    height: "82%",
-    borderRadius: 100,
-    transform: [{ translateY: -3 }],
+  speakSymbolClip: {
+    width: 76,
+    height: 70,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    marginTop: 15,
+  },
+  speakSymbol: {
+    width: 98,
+    height: 98,
+    transform: [{ translateY: -12 }],
+  },
+  speakLogoText: {
+    color: "#FFFFFF",
+    fontSize: 27,
+    lineHeight: 31,
+    fontWeight: "800",
+    marginTop: -2,
   },
   speakLoadingOverlay: {
     ...StyleSheet.absoluteFillObject,
