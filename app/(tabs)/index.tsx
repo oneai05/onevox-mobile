@@ -24,7 +24,7 @@ import { useOneVox } from "@/lib/onevox-store";
 import { trpc } from "@/lib/trpc";
 import { brandGradient } from "@/theme.config";
 
-const ONEAI_LOGO = require("@/assets/images/Logo OneAI só escudo.jpeg");
+const ONEAI_LOGO = require("@/assets/images/Logo enquadrado.jpeg");
 
 export default function TecladoScreen() {
   const colors = useColors();
