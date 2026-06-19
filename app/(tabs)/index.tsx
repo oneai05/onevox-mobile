@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   Keyboard,
   Platform,
   Pressable,
@@ -22,6 +23,8 @@ import { useSpeech } from "@/hooks/use-speech";
 import { useOneVox } from "@/lib/onevox-store";
 import { trpc } from "@/lib/trpc";
 import { brandGradient } from "@/theme.config";
+
+const ONEAI_LOGO = require("@/assets/images/oneai-logo.png");
 
 export default function TecladoScreen() {
   const colors = useColors();
@@ -172,17 +175,16 @@ export default function TecladoScreen() {
               colors={brandGradient as [string, string, ...string[]]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.speakBtn}
+              style={styles.speakRing}
             >
-              {state === "generating" ? (
-                <ActivityIndicator color="#0A1628" size="large" />
-              ) : (
-                <IconSymbol
-                  name={state === "playing" ? "speaker.wave.2.fill" : "play.fill"}
-                  size={44}
-                  color="#0A1628"
-                />
-              )}
+              <View style={[styles.speakLogoInner, { backgroundColor: colors.background }]}>
+                <Image source={ONEAI_LOGO} style={styles.speakLogo} resizeMode="contain" />
+                {state === "generating" ? (
+                  <View style={styles.speakLoadingOverlay}>
+                    <ActivityIndicator color={colors.primary} size="large" />
+                  </View>
+                ) : null}
+              </View>
             </LinearGradient>
           </Pressable>
           <Text style={[styles.speakLabel, { color: colors.muted }]}>
@@ -329,12 +331,31 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     elevation: 10,
   },
-  speakBtn: {
-    width: 132,
-    height: 132,
+  speakRing: {
+    width: 142,
+    height: 142,
+    borderRadius: 100,
+    padding: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  speakLogoInner: {
+    width: "100%",
+    height: "100%",
     borderRadius: 100,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
+  },
+  speakLogo: {
+    width: "88%",
+    height: "88%",
+  },
+  speakLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(10, 22, 40, 0.72)",
   },
   speakLabel: {
     marginTop: 14,
