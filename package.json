@@ -1,0 +1,16 @@
+{
+  "name": "onevox-mobile",
+  "private": true,
+  "workspaces": ["web"],
+  "scripts": {
+    "build": "cd web && npm run build"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@vercel/node": "^3.2.0",
+    "typescript": "^5.5.0"
+  }
+}

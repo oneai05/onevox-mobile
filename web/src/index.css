@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Paleta oficial One AI */
+  --brand-green: #4FCCAA;
+  --brand-teal:  #2EBFC2;
+  --brand-blue:  #71D2DC;
+  --brand-navy:  #193565;
+  /* Gradiente da marca */
+  --grad-from:   #4FCCAA;
+  --grad-to:     #2EBFC2;
+  /* Tema escuro do app */
+  --bg:          #0A1730;
+  --surface:     #142544;
+  --surface-2:   #0F1E3A;
+  --border:      #284067;
+  --text:        #FFFFFF;
+  --text-muted:  #9DB0CE;
+  --success:     #4FCCAA;
+  --danger:      #FF5A6E;
+  /* Espacamento */
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 20px;
+  --space-5: 24px;
+  --space-6: 32px;
+  /* Raios */
+  --radius-btn:  14px;
+  --radius-card: 16px;
+  --radius-tile: 20px;
+  --radius-pill: 999px;
+
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--text);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100dvh;
+  background-color: var(--bg);
+}
+
+/* Wordmark "OneVox" (DESIGN.md) */
+.brand { font-weight: 800; letter-spacing: -0.01em; }
+.brand .vox {
+  background: linear-gradient(90deg, var(--grad-from), var(--grad-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.brand small {
+  display: block;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.6em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Botao primario — alvo minimo 60px (acessibilidade) */
+.btn-primary {
+  min-height: 60px;
+  width: 100%;
+  border: none;
+  border-radius: var(--radius-btn);
+  background: linear-gradient(90deg, var(--grad-from), var(--grad-to));
+  color: #0A1730;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.15s;
+}
+.btn-primary:active  { opacity: 0.82; }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Correcao do autofill do browser (evita fundo amarelo nos inputs) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+  caret-color: var(--text);
+}
+
+/* Utilitarios */
+.gradient-text {
+  background: linear-gradient(90deg, var(--grad-from), var(--grad-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

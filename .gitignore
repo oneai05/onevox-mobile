@@ -14,3 +14,4 @@ build/
 # Logs / temporarios
 *.log
 .DS_Store
+.vercel
