@@ -1,0 +1,15 @@
+<svg width="360" height="130" viewBox="0 0 360 130" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4FCCAA"/>
+      <stop offset="1" stop-color="#2EBFC2"/>
+    </linearGradient>
+    <style>
+      text{font-family:'Poppins','Segoe UI',system-ui,Arial,sans-serif;}
+    </style>
+  </defs>
+  <text x="180" y="74" text-anchor="middle" font-size="58" font-weight="800">
+    <tspan fill="#FFFFFF">One</tspan><tspan fill="url(#g)">Vox</tspan>
+  </text>
+  <text x="180" y="104" text-anchor="middle" font-size="22" font-weight="500" fill="#93A2C6" letter-spacing="2">Mobile</text>
+</svg>

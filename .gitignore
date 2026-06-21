@@ -1,0 +1,16 @@
+# Segredos - NUNCA comitar
+.env
+.env.*
+!.env.example
+
+# Dependencias
+node_modules/
+
+# Build
+dist/
+build/
+.vercel/
+
+# Logs / temporarios
+*.log
+.DS_Store
