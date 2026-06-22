@@ -77,19 +77,45 @@ custo_openai     = tokens_in  * preco_in_por_token
 custo_elevenlabs = caracteres * preco_por_caractere
 ```
 
-Tabela de precos (preencher/validar com os valores atuais):
+Tabela de precos de referencia (valores **estimados** — validar no painel de cada fornecedor).
+Os valores ficam centralizados em **`api/_lib/precos.ts`** (alterar la, num lugar so):
 
-| Provedor | Unidade | Preco (USD) | Observacao |
+| Provedor / operacao | Unidade | Preco (USD) | Observacao |
 |---|---|---|---|
-| OpenAI (modelo X) | 1M tokens entrada | (preencher) | depende do modelo escolhido |
-| OpenAI (modelo X) | 1M tokens saida | (preencher) | |
-| ElevenLabs | 1 caractere | (preencher) | varia com o plano/assinatura |
-| STT (AssemblyAI/Scribe) | minuto de audio | (preencher) | so se usar STT pago |
+| OpenAI gpt-4o-mini (correcao) | 1M tokens entrada | 0.15 | |
+| OpenAI gpt-4o-mini (correcao) | 1M tokens saida | 0.60 | |
+| OpenAI gpt-4o-mini-transcribe (STT) | 1 segundo de audio | 0.0001 | ~US$0.006/min de referencia |
+| ElevenLabs (TTS) | 1 caractere | 0.00018 | ~US$0.18/1k chars; **varia muito por plano** |
+
+O custo e calculado em `calcularCustoUsd()` (`api/_lib/precos.ts`) e gravado no campo
+`uso.custo_usd` pelo `logUso()` a cada chamada — assim o preco fica **congelado por linha**
+(historico preservado mesmo que os precos mudem depois).
 
 > O `custo_usd` gravado e uma **estimativa nossa**. Reconciliar periodicamente com
 > os dashboards de billing da OpenAI e da ElevenLabs para validar.
+>
+> ⚠️ Linhas anteriores a esta instrumentacao tem `custo_usd` nulo (= 0 no relatorio).
 
 ## 4. Relatorios que isso habilita
+
+### View pronta: `uso_resumo` (relatorio sob demanda)
+
+A migration `0003_uso_resumo.sql` cria a view **`public.uso_resumo`** — consumo e custo
+agregados **por usuario** (nome, nº de correcoes/falas/transcricoes, tokens, caracteres,
+segundos, custo total, ultimo uso). E revogada para `anon`/`authenticated` (so service_role
+/ painel a le, pois agrega todos os usuarios). Consulta rapida:
+
+```sql
+select * from public.uso_resumo;
+```
+
+### Provisionar testadores com voz propria
+
+`scripts/criar-testadores.mjs` cria os usuarios de teste (email simples `nome@onevox.app`
++ senha gerada) e amarra a `elevenlabs_voice_id` de cada um. Entrada em
+`scripts/testadores.json` (gitignored). Rodar: `node --env-file=.env scripts/criar-testadores.mjs`.
+
+### Outras consultas uteis
 
 ```sql
 -- Gasto por usuario por dia

@@ -14,10 +14,11 @@
 - [x] **Fase 5 — Gravar (STT)**: MediaRecorder → Whisper → texto editável → Falar/Corrigir
 
 ## 🔥 Agora
-1. **Testar no celular** (você): reabrir o app (cache do PWA) e testar **Gravar** —
-   tocar mic, falar, ver transcrição, Falar na voz clonada. Testar 2 modos e Frases.
-2. **Medição de uso (Fase 4)**: preencher tabela de preços em `docs/MEDICAO-USO.md`
-   (custo OpenAI correção + Whisper + ElevenLabs por uso) e conferir linhas em `uso`.
+1. **Criar as vozes no ElevenLabs** (você) e me mandar **nome + voice_id** de cada testador.
+   Eu preencho `scripts/testadores.json` e rodo `node --env-file=.env scripts/criar-testadores.mjs`
+   → gera login+senha de cada um (com a voz própria amarrada).
+2. **Testar no celular** (você): reabrir o app (cache do PWA) e testar **Gravar** + 2 modos + Frases.
+3. **Acompanhar uso:** `select * from public.uso_resumo;` no painel do Supabase (ou me pedir o relatório).
 
 ## 📋 Em breve
 - [ ] Aviso de "nova versão disponível" no PWA (nível B do fluxo de atualização)

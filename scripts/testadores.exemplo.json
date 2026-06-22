@@ -1,0 +1,4 @@
+[
+  { "nome": "Maria Silva", "voiceId": "COLE_O_VOICE_ID_DO_ELEVENLABS" },
+  { "nome": "João Souza",  "voiceId": "COLE_O_VOICE_ID_DO_ELEVENLABS", "email": "joao@exemplo.com" }
+]

@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+scripts/testadores.json
+scripts/credenciais*.txt
 
 # Dependencias
 node_modules/

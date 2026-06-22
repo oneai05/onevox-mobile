@@ -18,7 +18,12 @@
   áudio (Web Share API + fallback download). **Tamanho de fonte** (`perfis.font_scale`).
 - `/api/health` → `{supabase:true, openai:true, elevenlabs:true}`.
 - Voz "Cassiano" (`ZhHddHRyxDXlhs2YdQUR`) no perfil de teste.
-- **Migration 0002** aplicada (frases + font_scale + comment em modo_preferido).
+- **Medição de uso por usuário:** custo (USD) calculado por chamada em `api/_lib/precos.ts`
+  e gravado em `uso.custo_usd` pelo `logUso`. View **`uso_resumo`** agrega consumo+custo
+  por usuário (revogada p/ anon — relatório só via service_role/painel). Validado em produção.
+- **Migrations 0002** (frases + font_scale) e **0003** (view uso_resumo) aplicadas.
+- **`scripts/criar-testadores.mjs`:** provisiona usuários de teste (`nome@onevox.app` + senha
+  gerada) e amarra a `elevenlabs_voice_id` de cada um. Entrada: `scripts/testadores.json` (gitignored).
 
 ## Como rodar local
 
@@ -59,8 +64,13 @@ Login: `teste@onevox.com` / `onevox123`
     editável + Falar/Corrigir e Falar; trata negação de microfone.
   - `useFala` (novo hook): extrai falar/corrigirEFalar/ultimoAudio do Teclado; Teclado e
     Gravar usam o mesmo. Teclado refatorado sem mudança de comportamento.
-- Parou em: **Fases 0-5 no ar e build limpo.** Mudanças da Fase 5 ainda não commitadas.
-  Próximo: commit + testar Gravar no celular + revisar medição de uso (Fase 4).
+- Depois (mesma sessão): **medição de uso por usuário** (Fase 4):
+  - `api/_lib/precos.ts` + `logUso` calculam e gravam `custo_usd` por chamada (validado:
+    correção em produção gravou US$0.000092). View `uso_resumo` (migration 0003) p/ relatório.
+  - `scripts/criar-testadores.mjs` pronto p/ criar testadores com voz própria.
+  - Preços preenchidos em `docs/MEDICAO-USO.md` (estimativas — ajustar ao faturamento real).
+- Parou em: **Fases 0-5 + medição no ar.** Aguardando o usuário criar as vozes no ElevenLabs
+  e mandar nome+voice_id de cada testador → rodar o script de provisionamento.
 
 ## Deploy — playbook (resolvido)
 

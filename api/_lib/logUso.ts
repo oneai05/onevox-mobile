@@ -1,4 +1,5 @@
 import { supabaseAdmin } from './supabaseAdmin'
+import { calcularCustoUsd } from './precos'
 
 export interface UsoEvent {
   user_id:        string
@@ -16,8 +17,11 @@ export interface UsoEvent {
 }
 
 export async function logUso(event: UsoEvent): Promise<void> {
+  // custo calculado no backend (preserva o preço histórico na própria linha)
+  const custo_usd = event.custo_usd ?? calcularCustoUsd(event)
   const { error } = await supabaseAdmin.from('uso').insert({
     ...event,
+    custo_usd,
     sucesso: event.sucesso ?? true,
   })
   if (error) console.error('[logUso]', error.message)
