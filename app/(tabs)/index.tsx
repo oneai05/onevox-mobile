@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -16,8 +16,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as FileSystem from "expo-file-system/legacy";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import * as Sharing from "expo-sharing";
 
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -246,25 +248,43 @@ function FloatingShareButton({ audioUrl }: { audioUrl: string }) {
   const startX = Math.max(Dimensions.get("window").width - 112, 240);
   const pan = useRef(new Animated.ValueXY({ x: startX, y: 440 })).current;
   const draggedRef = useRef(false);
+  const [sharing, setSharing] = useState(false);
 
-  const handleShare = async () => {
+  const handleShare = useCallback(async () => {
     if (!audioUrl) return;
-    if (Platform.OS === "web") {
-      const link = document.createElement("a");
-      link.href = audioUrl;
-      link.download = "onevox-audio.mp3";
-      link.target = "_blank";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      return;
+    setSharing(true);
+    try {
+      if (Platform.OS === "web") {
+        const link = document.createElement("a");
+        link.href = audioUrl;
+        link.download = "onevox-audio.mp3";
+        link.target = "_blank";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        return;
+      }
+
+      const canShareFile = await Sharing.isAvailableAsync();
+      if (canShareFile) {
+        const fileUri = `${FileSystem.cacheDirectory}onevox-audio-${Date.now()}.mp3`;
+        const result = await FileSystem.downloadAsync(audioUrl, fileUri);
+        await Sharing.shareAsync(result.uri, {
+          dialogTitle: "Compartilhar áudio OneVox",
+          mimeType: "audio/mpeg",
+          UTI: "public.mp3",
+        });
+        return;
+      }
+
+      await Share.share({
+        title: "Áudio OneVox",
+        url: audioUrl,
+      });
+    } finally {
+      setSharing(false);
     }
-    await Share.share({
-      title: "Áudio OneVox",
-      message: audioUrl,
-      url: audioUrl,
-    });
-  };
+  }, [audioUrl]);
 
   const panResponder = useMemo(
     () =>
@@ -285,7 +305,7 @@ function FloatingShareButton({ audioUrl }: { audioUrl: string }) {
         },
         onPanResponderRelease: () => {
           pan.flattenOffset();
-          if (!draggedRef.current) {
+          if (!draggedRef.current && !sharing) {
             handleShare().catch(() => {});
           }
         },
@@ -293,7 +313,7 @@ function FloatingShareButton({ audioUrl }: { audioUrl: string }) {
           pan.flattenOffset();
         },
       }),
-    [audioUrl, pan],
+    [handleShare, pan, sharing],
   );
 
   return (
@@ -308,7 +328,11 @@ function FloatingShareButton({ audioUrl }: { audioUrl: string }) {
         style={styles.shareFloatingBorder}
       >
         <View style={[styles.shareFloatingInner, { backgroundColor: colors.background }]}>
-          <IconSymbol name="square.and.arrow.up" size={26} color={colors.primary} />
+          {sharing ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <IconSymbol name="square.and.arrow.up" size={22} color={colors.primary} />
+          )}
         </View>
       </LinearGradient>
     </Animated.View>
@@ -468,9 +492,9 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
   shareFloatingBorder: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     padding: 1.5,
     shadowColor: "#34D8A0",
     shadowOpacity: 0.25,
@@ -479,7 +503,7 @@ const styles = StyleSheet.create({
   },
   shareFloatingInner: {
     flex: 1,
-    borderRadius: 29,
+    borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
   },
