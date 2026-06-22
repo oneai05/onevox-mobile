@@ -6,8 +6,10 @@
 🟢 **POC NO AR.** Fases 0-3 + miolo importado do colega, deployado em produção.
 
 - **URL pública:** https://onevox-mobile.vercel.app (instalável, sem bloqueio SSO)
-- Auth, login, AppShell, Teclado, **Frases**, **Perfil** funcionando.
-- TTS (ElevenLabs) + correção (OpenAI) validados ponta-a-ponta.
+- Auth, login, AppShell, Teclado, **Frases**, **Gravar**, **Perfil** funcionando.
+- TTS (ElevenLabs) + correção (OpenAI) + **STT (OpenAI Whisper)** validados ponta-a-ponta.
+- **Gravar (Fase 5):** MediaRecorder → `/api/stt` (gpt-4o-mini-transcribe, pt) → texto
+  editável → Falar / Corrigir e Falar. Hook `useFala` compartilhado com o Teclado.
 - **Dois modos de correção** (`perfis.modo_preferido`: 1=conservador, 2=reconstrução),
   escolhidos no Perfil. Backend lê o modo do perfil (nunca do payload). Prompt de
   reconstrução adaptado do colega (decodifica texto truncado de quem tem ELA).
@@ -50,8 +52,15 @@ Login: `teste@onevox.com` / `onevox123`
   - Hook `web/src/lib/usePerfil.ts` (lê/grava perfil via RLS)
   - **Bug do deploy.sh corrigido:** `vercel build` re-rodava o frontend e clobberava o
     web/dist sem env → reordenado (npm build por último). Sanity check agora usa a URL real.
-- Parou em: **tudo no ar e build limpo.** Mudanças desta sessão ainda não commitadas.
-  Próximo: commit + testar features no celular + Fase 5 (STT/Gravar).
+- Depois (mesma sessão): **Fase 5 — Gravar (STT)** implementada e deployada:
+  - `api/stt.ts`: recebe áudio base64 → OpenAI Whisper (`gpt-4o-mini-transcribe`, pt) → texto.
+    Round-trip validado (TTS→Whisper retorna a frase exata). logUso `operacao='stt'`.
+  - `Gravar.tsx`: MediaRecorder (webm/mp4 conforme navegador), auto-parar 60s, transcrição
+    editável + Falar/Corrigir e Falar; trata negação de microfone.
+  - `useFala` (novo hook): extrai falar/corrigirEFalar/ultimoAudio do Teclado; Teclado e
+    Gravar usam o mesmo. Teclado refatorado sem mudança de comportamento.
+- Parou em: **Fases 0-5 no ar e build limpo.** Mudanças da Fase 5 ainda não commitadas.
+  Próximo: commit + testar Gravar no celular + revisar medição de uso (Fase 4).
 
 ## Deploy — playbook (resolvido)
 

@@ -1,62 +1,16 @@
 import { useState } from 'react'
 import { Volume2, RotateCcw, X, Wand2, Loader2, ThumbsUp, ThumbsDown } from 'lucide-react'
-import { apiFetch } from '../lib/api'
-import { playAudio } from '../audio/player'
+import { useFala } from '../lib/useFala'
 import FloatingShareButton from '../components/FloatingShareButton'
 
-type Estado = 'idle' | 'corrigindo' | 'falando' | 'erro'
-
 export default function Teclado() {
-  const [texto, setTexto]             = useState('')
-  const [textoOriginal, setOriginal]  = useState('')
-  const [estado, setEstado]           = useState<Estado>('idle')
-  const [erroMsg, setErroMsg]         = useState('')
-  const [ultimoAudio, setUltimoAudio] = useState<Blob | null>(null)
+  const [texto, setTexto]            = useState('')
+  const [textoOriginal, setOriginal] = useState('')
+  const { estado, erroMsg, ocupado, ultimoAudio, falar, corrigirEFalar, reset, resetAudio } = useFala()
 
-  const ocupado = estado === 'corrigindo' || estado === 'falando'
-
-  async function falar(textoPara: string) {
-    setEstado('falando')
-    setErroMsg('')
-    try {
-      const res = await apiFetch('/api/tts', {
-        method: 'POST',
-        body: JSON.stringify({ texto: textoPara }),
-      })
-      if (!res.ok) {
-        const { error } = await res.json()
-        throw new Error(error ?? 'erro ao gerar voz')
-      }
-      const blob = await res.blob()
-      setUltimoAudio(blob)
-      await playAudio(blob)
-      setEstado('idle')
-    } catch (e: any) {
-      setErroMsg(e.message)
-      setEstado('erro')
-    }
-  }
-
-  async function corrigirEFalar() {
-    setEstado('corrigindo')
-    setErroMsg('')
-    try {
-      const res = await apiFetch('/api/correcao', {
-        method: 'POST',
-        body: JSON.stringify({ texto }),
-      })
-      if (!res.ok) {
-        const { error } = await res.json()
-        throw new Error(error ?? 'erro na correção')
-      }
-      const { textoCorrigido } = await res.json()
-      setOriginal(texto)
-      setTexto(textoCorrigido)
-      await falar(textoCorrigido)
-    } catch (e: any) {
-      setErroMsg(e.message)
-      setEstado('erro')
-    }
+  async function handleCorrigir() {
+    const corrigido = await corrigirEFalar(texto)
+    if (corrigido) { setOriginal(texto); setTexto(corrigido) }
   }
 
   function desfazerCorrecao() {
@@ -69,7 +23,7 @@ export default function Teclado() {
       {/* Area de texto */}
       <textarea
         value={texto}
-        onChange={e => { setTexto(e.target.value); setOriginal(''); setEstado('idle') }}
+        onChange={e => { setTexto(e.target.value); setOriginal(''); reset() }}
         placeholder="Digite o que quer dizer..."
         rows={6}
         disabled={ocupado}
@@ -144,7 +98,7 @@ export default function Teclado() {
       {/* Acoes rapidas */}
       <div style={{ display: 'flex', gap: 12 }}>
         <button
-          onClick={() => { setTexto(''); setOriginal(''); setEstado('idle'); setUltimoAudio(null) }}
+          onClick={() => { setTexto(''); setOriginal(''); reset(); resetAudio() }}
           disabled={!texto || ocupado}
           aria-label="Limpar texto"
           style={{
@@ -192,7 +146,7 @@ export default function Teclado() {
       <button
         disabled={!texto.trim() || ocupado}
         aria-label="Corrigir texto e falar"
-        onClick={corrigirEFalar}
+        onClick={handleCorrigir}
         style={{
           minHeight: 56, width: '100%', border: '1px solid var(--brand-green)',
           borderRadius: 'var(--radius-btn)', background: 'transparent',

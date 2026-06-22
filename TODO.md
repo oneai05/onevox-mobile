@@ -2,42 +2,30 @@
 > Atualizado: 2026-06-22
 
 ## ✅ Concluído
-- [x] Scaffold monorepo (web/ + api/) — Fases 0 + 1
-- [x] Supabase provisionado (onevox, sa-east-1, migration + RLS)
-- [x] Auth: login, PrivateRoute, logout
-- [x] Login redesenhado: ícone + wordmark + "Powered by One AI"
-- [x] AppShell: tab bar (Teclado / Gravar / Frases / Perfil)
-- [x] Vercel linkada ao GitHub, env vars configuradas
-- [x] api/tts.ts — ElevenLabs multilingual v2 (voice_id do perfil)
-- [x] api/correcao.ts — OpenAI gpt-4o-mini, prompt conservador
-- [x] Teclado.tsx — botões "Falar" e "Corrigir e Falar" funcionais
-- [x] Voz "Cassiano" configurada no perfil de teste no Supabase
-- [x] **POC deployada e pública: https://onevox-mobile.vercel.app**
-- [x] **TTS + correção validados ponta-a-ponta em produção**
-- [x] **logUso() confirmado gravando na tabela `uso`**
+- [x] Scaffold monorepo + Supabase (migration + RLS) + Auth (login/logout/guard)
+- [x] AppShell, Teclado, api/tts (ElevenLabs), api/correcao (OpenAI)
+- [x] **POC deployada e pública: https://onevox-mobile.vercel.app** (script `scripts/deploy.sh`)
+- [x] TTS + correção validados ponta-a-ponta em produção; logUso gravando em `uso`
+- [x] **2 modos de correção** (conservador / reconstrução) escolhidos no Perfil
+- [x] **Frases prontas** (16 em 4 categorias, tabela `frases` no Supabase)
+- [x] **Botão flutuante** de compartilhar áudio (Web Share API)
+- [x] **Botões Sim/Não** no Teclado
+- [x] **Acessibilidade**: tamanho de fonte (`perfis.font_scale`)
+- [x] **Fase 5 — Gravar (STT)**: MediaRecorder → Whisper → texto editável → Falar/Corrigir
 
 ## 🔥 Agora
+1. **Testar no celular** (você): reabrir o app (cache do PWA) e testar **Gravar** —
+   tocar mic, falar, ver transcrição, Falar na voz clonada. Testar 2 modos e Frases.
+2. **Medição de uso (Fase 4)**: preencher tabela de preços em `docs/MEDICAO-USO.md`
+   (custo OpenAI correção + Whisper + ElevenLabs por uso) e conferir linhas em `uso`.
 
-1. **Instalar e testar no celular** (você):
-   - Abrir https://onevox-mobile.vercel.app no Chrome (Android) ou Safari (iOS)
-   - Login: `teste@onevox.com` / `onevox123`
-   - Menu → "Adicionar à tela inicial" → abrir pelo ícone
-   - Testar Falar / Corrigir e Falar
-
-2. **Preencher tabela de preços** em `docs/MEDICAO-USO.md` (custo OpenAI + ElevenLabs por uso).
-
-### Fase 5 — STT (Áudio → Texto)
-- [ ] Implementar `api/stt.ts` (AssemblyAI ou ElevenLabs Scribe)
-- [ ] `Gravar.tsx`: botão microfone + MediaRecorder + envio do áudio
-
-### Fase 6 — PWA polish
-- [ ] `Frases.tsx`: grade de tiles por categoria
-- [ ] Tela Acessibilidade (tamanho de fonte, alto contraste)
-- [ ] Tela Config IA (modo_preferido salvo no perfil)
-- [ ] Smoke test PWA install no iOS/Android
+## 📋 Em breve
+- [ ] Aviso de "nova versão disponível" no PWA (nível B do fluxo de atualização)
+- [ ] Tela Config IA dedicada (hoje o modo está inline no Perfil)
+- [ ] Onboarding da voz clonada (hoje manual no Supabase)
 
 ## 💡 Backlog
 - [ ] Domínio `app.onevox.com` → apontar para Vercel
-- [ ] Automação do clone de voz (onboarding manual na POC)
 - [ ] Modelo de contas: auto-cadastro + pagamento self-serve
-- [ ] Tabela `conversas` (histórico) + política de retenção
+- [ ] Tabela `conversas` (histórico de transcrições) + política de retenção
+- [ ] Refatorar para hook único de áudio (parcial: `useFala` já compartilhado)
