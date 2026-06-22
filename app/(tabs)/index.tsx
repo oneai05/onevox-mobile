@@ -255,12 +255,36 @@ function FloatingShareButton({ audioUrl }: { audioUrl: string }) {
     setSharing(true);
     try {
       if (Platform.OS === "web") {
+        const navigatorWithShare = window.navigator as Navigator & {
+          canShare?: (data: ShareData) => boolean;
+        };
+        const response = await fetch(audioUrl);
+        const blob = await response.blob();
+        const file = new File([blob], "onevox-audio.mp3", { type: blob.type || "audio/mpeg" });
+        const shareData: ShareData = {
+          title: "Audio OneVox",
+          files: [file],
+        };
+
+        if (navigatorWithShare.canShare?.(shareData)) {
+          await navigatorWithShare.share(shareData);
+          return;
+        }
+
+        if (navigatorWithShare.share) {
+          await navigatorWithShare.share({
+            title: "Audio OneVox",
+            url: audioUrl,
+          });
+          return;
+        }
+
         const link = document.createElement("a");
-        link.href = audioUrl;
+        link.href = URL.createObjectURL(blob);
         link.download = "onevox-audio.mp3";
-        link.target = "_blank";
         document.body.appendChild(link);
         link.click();
+        URL.revokeObjectURL(link.href);
         link.remove();
         return;
       }
