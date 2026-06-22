@@ -24,6 +24,14 @@ const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
 const MIN_WEB_TOP_INSET = 52;
 
+function normalizeInsets(insets: EdgeInsets): EdgeInsets {
+  return {
+    ...insets,
+    top: Platform.OS === "web" ? Math.max(insets.top, MIN_WEB_TOP_INSET) : Math.max(insets.top, 16),
+    bottom: Math.max(insets.bottom, 12),
+  };
+}
+
 export const unstable_settings = {
   anchor: "(tabs)",
 };
@@ -32,7 +40,7 @@ export default function RootLayout() {
   const initialInsets = initialWindowMetrics?.insets ?? DEFAULT_WEB_INSETS;
   const initialFrame = initialWindowMetrics?.frame ?? DEFAULT_WEB_FRAME;
 
-  const [insets, setInsets] = useState<EdgeInsets>(initialInsets);
+  const [insets, setInsets] = useState<EdgeInsets>(() => normalizeInsets(initialInsets));
   const [frame, setFrame] = useState<Rect>(initialFrame);
 
   // Initialize Manus runtime for cookie injection from parent container
@@ -41,7 +49,7 @@ export default function RootLayout() {
   }, []);
 
   const handleSafeAreaUpdate = useCallback((metrics: Metrics) => {
-    setInsets(metrics.insets);
+    setInsets(normalizeInsets(metrics.insets));
     setFrame(metrics.frame);
   }, []);
 
@@ -72,11 +80,7 @@ export default function RootLayout() {
     const metrics = initialWindowMetrics ?? { insets: initialInsets, frame: initialFrame };
     return {
       ...metrics,
-      insets: {
-        ...metrics.insets,
-        top: Platform.OS === "web" ? Math.max(metrics.insets.top, MIN_WEB_TOP_INSET) : Math.max(metrics.insets.top, 16),
-        bottom: Math.max(metrics.insets.bottom, 12),
-      },
+      insets: normalizeInsets(metrics.insets),
     };
   }, [initialInsets, initialFrame]);
 
