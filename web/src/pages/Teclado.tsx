@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Volume2, RotateCcw, X, Wand2, Loader2 } from 'lucide-react'
+import { Volume2, RotateCcw, X, Wand2, Loader2, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { apiFetch } from '../lib/api'
 import { playAudio } from '../audio/player'
+import FloatingShareButton from '../components/FloatingShareButton'
 
 type Estado = 'idle' | 'corrigindo' | 'falando' | 'erro'
 
@@ -10,6 +11,7 @@ export default function Teclado() {
   const [textoOriginal, setOriginal]  = useState('')
   const [estado, setEstado]           = useState<Estado>('idle')
   const [erroMsg, setErroMsg]         = useState('')
+  const [ultimoAudio, setUltimoAudio] = useState<Blob | null>(null)
 
   const ocupado = estado === 'corrigindo' || estado === 'falando'
 
@@ -26,6 +28,7 @@ export default function Teclado() {
         throw new Error(error ?? 'erro ao gerar voz')
       }
       const blob = await res.blob()
+      setUltimoAudio(blob)
       await playAudio(blob)
       setEstado('idle')
     } catch (e: any) {
@@ -104,10 +107,44 @@ export default function Teclado() {
         </button>
       )}
 
+      {/* Respostas rapidas Sim / Nao (falam direto) */}
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button
+          onClick={() => falar('Sim.')}
+          disabled={ocupado}
+          aria-label="Falar Sim"
+          style={{
+            flex: 1, minHeight: 56,
+            background: 'var(--surface)', border: '1px solid var(--brand-green)',
+            borderRadius: 'var(--radius-btn)', color: 'var(--brand-green)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            fontFamily: 'inherit', fontSize: '1rem', fontWeight: 600,
+            cursor: ocupado ? 'not-allowed' : 'pointer', opacity: ocupado ? 0.5 : 1,
+          }}
+        >
+          <ThumbsUp size={20} /> Sim
+        </button>
+        <button
+          onClick={() => falar('Não.')}
+          disabled={ocupado}
+          aria-label="Falar Não"
+          style={{
+            flex: 1, minHeight: 56,
+            background: 'var(--surface)', border: '1px solid var(--danger)',
+            borderRadius: 'var(--radius-btn)', color: 'var(--danger)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            fontFamily: 'inherit', fontSize: '1rem', fontWeight: 600,
+            cursor: ocupado ? 'not-allowed' : 'pointer', opacity: ocupado ? 0.5 : 1,
+          }}
+        >
+          <ThumbsDown size={20} /> Não
+        </button>
+      </div>
+
       {/* Acoes rapidas */}
       <div style={{ display: 'flex', gap: 12 }}>
         <button
-          onClick={() => { setTexto(''); setOriginal(''); setEstado('idle') }}
+          onClick={() => { setTexto(''); setOriginal(''); setEstado('idle'); setUltimoAudio(null) }}
           disabled={!texto || ocupado}
           aria-label="Limpar texto"
           style={{
@@ -171,6 +208,9 @@ export default function Teclado() {
           : <><Wand2 size={18} /> Corrigir e Falar</>
         }
       </button>
+
+      {/* Botao flutuante de compartilhar o ultimo audio gerado */}
+      {ultimoAudio && <FloatingShareButton audio={ultimoAudio} />}
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>

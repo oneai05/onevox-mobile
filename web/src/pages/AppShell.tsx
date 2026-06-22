@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { Outlet, NavLink } from 'react-router-dom'
 import { Keyboard, Mic, LayoutGrid, User } from 'lucide-react'
+import { usePerfil, applyFontScale } from '../lib/usePerfil'
 
 const tabs = [
   { to: 'teclado', icon: Keyboard,    label: 'Teclado' },
@@ -9,6 +11,12 @@ const tabs = [
 ]
 
 export default function AppShell() {
+  // aplica o tamanho de fonte salvo no perfil assim que carrega
+  const { perfil } = usePerfil()
+  useEffect(() => {
+    if (perfil?.font_scale) applyFontScale(perfil.font_scale)
+  }, [perfil?.font_scale])
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh' }}>
 
