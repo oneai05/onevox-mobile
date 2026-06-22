@@ -11,6 +11,31 @@ if ("serviceWorker" in navigator) {
 }
 `;
 
+const baseStyles = `
+html,
+body,
+#root {
+  background: #0A1628;
+  min-height: 100%;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+`;
+
 export default function Root({ children }: PropsWithChildren) {
   return (
     <html lang="pt-BR">
@@ -31,6 +56,7 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" type="image/png" sizes="196x196" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/pwa-icon-192.png" />
+        <style dangerouslySetInnerHTML={{ __html: baseStyles }} />
         <ScrollViewStyleReset />
       </head>
       <body>

@@ -13,7 +13,7 @@ export function OneVoxWordmark({ size = 28, subtitle }: { size?: number; subtitl
     <View style={styles.wordmarkWrap}>
       <View style={styles.row}>
         <Text style={[styles.word, { fontSize: size }]}>One</Text>
-        <GradientText text="Vox" style={{ fontSize: size, fontWeight: "800" }} />
+        <Text style={[styles.vox, { fontSize: size }]}>Vox</Text>
       </View>
       <Text style={[styles.mobileText, { fontSize: Math.round(size * 0.52) }]}>Mobile</Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
@@ -84,6 +84,10 @@ const styles = StyleSheet.create({
   },
   word: {
     color: "#FFFFFF",
+    fontWeight: "800",
+  },
+  vox: {
+    color: "#34D8A0",
     fontWeight: "800",
   },
   mobileText: {
