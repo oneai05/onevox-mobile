@@ -12,6 +12,7 @@ web-dist-check/
 web-dist-vercel-check/
 web-dist-share-check/
 web-dist-ui-check/
+web-dist-safearea-check/
 expo-env.d.ts
 
 # Native

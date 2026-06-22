@@ -25,14 +25,7 @@ html {
 
 body {
   margin: 0;
-  min-height: 100vh;
-  min-height: 100dvh;
   overflow: hidden;
-}
-
-#root {
-  min-height: 100vh;
-  min-height: 100dvh;
 }
 `;
 

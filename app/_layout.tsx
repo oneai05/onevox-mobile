@@ -22,6 +22,7 @@ import { OneVoxStoreProvider } from "@/lib/onevox-store";
 
 const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
+const MIN_WEB_TOP_INSET = 52;
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -73,7 +74,7 @@ export default function RootLayout() {
       ...metrics,
       insets: {
         ...metrics.insets,
-        top: Math.max(metrics.insets.top, 16),
+        top: Platform.OS === "web" ? Math.max(metrics.insets.top, MIN_WEB_TOP_INSET) : Math.max(metrics.insets.top, 16),
         bottom: Math.max(metrics.insets.bottom, 12),
       },
     };
