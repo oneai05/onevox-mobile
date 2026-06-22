@@ -3,10 +3,38 @@ import type { PropsWithChildren } from "react";
 
 const serviceWorkerRegistration = `
 if ("serviceWorker" in navigator) {
+  var refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function () {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+
   window.addEventListener("load", function () {
-    navigator.serviceWorker.register("/service-worker.js").catch(function (error) {
-      console.warn("[PWA] Service worker registration failed:", error);
-    });
+    navigator.serviceWorker
+      .register("/service-worker.js")
+      .then(function (registration) {
+        function activateWaitingWorker() {
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          }
+        }
+
+        activateWaitingWorker();
+        registration.addEventListener("updatefound", function () {
+          var worker = registration.installing;
+          if (!worker) return;
+          worker.addEventListener("statechange", function () {
+            if (worker.state === "installed" && navigator.serviceWorker.controller) {
+              worker.postMessage({ type: "SKIP_WAITING" });
+            }
+          });
+        });
+        registration.update().catch(function () {});
+      })
+      .catch(function (error) {
+        console.warn("[PWA] Service worker registration failed:", error);
+      });
   });
 }
 `;

@@ -1,5 +1,5 @@
-const CACHE_NAME = "onevox-pwa-v1";
-const STATIC_ASSETS = ["/", "/manifest.json", "/favicon.png", "/pwa-icon-192.png", "/pwa-icon-512.png"];
+const CACHE_NAME = "onevox-pwa-v2";
+const STATIC_ASSETS = ["/manifest.json", "/favicon.png", "/pwa-icon-192.png", "/pwa-icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -21,6 +21,12 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
@@ -30,23 +36,27 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(fetch(request).catch(() => caches.match("/")));
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+          return networkResponse;
+        })
+        .catch(() => caches.match(request).then((cachedResponse) => cachedResponse || caches.match("/"))),
+    );
     return;
   }
 
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      const fetchPromise = fetch(request)
-        .then((networkResponse) => {
-          if (networkResponse.ok) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
-          }
-          return networkResponse;
-        })
-        .catch(() => cachedResponse);
-
-      return cachedResponse || fetchPromise;
-    }),
+    fetch(request)
+      .then((networkResponse) => {
+        if (networkResponse.ok) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+        }
+        return networkResponse;
+      })
+      .catch(() => caches.match(request)),
   );
 });
