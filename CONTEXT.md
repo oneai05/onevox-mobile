@@ -1,63 +1,78 @@
 # Context — OneVox Mobile
-> Atualizado: 2026-06-21
+> Atualizado: 2026-06-22
 
 ## Estado atual
 
-Fases **0 e 1 concluídas**. Ambiente local funcional. Vercel provisionada.
+🟢 **POC NO AR.** Fases **0, 1, 2 e 3 implementadas, deployadas e validadas em produção**.
 
-- Monorepo `web/` + `api/` criado e rodando.
-- Supabase provisionado (`onevox`, `sa-east-1`), migration aplicada, RLS ativa.
-- Vercel linkada ao GitHub (`cassianopb/onevox-mobile`), env vars configuradas nos 3 ambientes.
-- Frontend confirmado funcionando em `localhost:5173` (screenshot de login recebido).
-- Login redesenhado: ícone OneVox grande + "Powered by One AI" no rodapé.
-- Usuário de teste criado: `teste@onevox.com` / `onevox123`.
-- **Pendente:** confirmar login funcionando + primeiro `git push` para deploy na Vercel.
-
-## Última sessão — 2026-06-21
-
-- Trabalhando em: provisionamento Vercel + dev local + redesign do Login.
-- Feito:
-  - `.env` preenchido pelo usuário (todas as chaves).
-  - `vercel login` + `vercel link` (projeto `cassianopbs-projects/onevox-mobile`, conectado ao GitHub).
-  - 6 env vars adicionadas à Vercel via CLI (Production + Preview + Development).
-  - Descoberto e corrigido bug de recursão: `package.json` root tinha `"dev": "vercel dev"` → removido.
-  - `devCommand` removido do `vercel.json` (vercel dev v54 trava API functions em background/non-TTY).
-  - Vite proxy adicionado em `web/vite.config.ts`: `/api/*` → `localhost:3000`.
-  - Fix CSS: autofill amarelo do browser corrigido em `index.css`.
-  - Login redesenhado: ícone grande + subtítulo + footer "Powered by One AI" com emblema.
-  - `brand/oneai-emblem.png` copiado para `web/public/oneai-emblem.png`.
-  - Usuário de teste criado via Supabase Admin API.
-- Parou em: usuário fechou os terminais; login redesenhado ainda não foi testado.
+- **URL pública:** https://onevox-mobile.vercel.app (HTTP 200, sem bloqueio SSO)
+- Auth, login, AppShell, Teclado funcionando.
+- TTS (ElevenLabs) e correção (OpenAI) **validados ponta-a-ponta em produção**:
+  - `/api/correcao`: "oi eu queru bebe agua" → "oi eu quero beber água" ✅
+  - `/api/tts`: 31KB audio/mpeg, voz Cassiano ✅
+- `/api/health` → `{supabase:true, openai:true, elevenlabs:true}`.
+- `logUso()` gravando na tabela `uso` (tts: chars/latência; correcao: tokens in/out). ✅
+- Voz "Cassiano" (`ZhHddHRyxDXlhs2YdQUR`) configurada no perfil de teste no Supabase.
 
 ## Como rodar local
 
 ```bash
-# Terminal 1 — API (Vercel Functions na porta 3000)
+# UM único terminal (vercel dev sobe API + frontend)
 cd ~/Documents/onevox-mobile
 vercel dev
-
-# Terminal 2 — Frontend (Vite na porta 5173, proxy /api/* → 3000)
-cd ~/Documents/onevox-mobile/web
-npm run dev
 ```
 
-Acesso: **http://localhost:5173**
-Login de teste: `teste@onevox.com` / `onevox123`
+Acessa **http://localhost:3000** (porta do vercel dev, não 5173).
+Login: `teste@onevox.com` / `onevox123`
 
-> Nota: a autenticação (Login.tsx) vai direto ao Supabase — não depende do `vercel dev`.
-> O `vercel dev` só é necessário para testar as rotas `/api/tts`, `/api/correcao` etc. (Fase 2+).
+> Se abrir um segundo terminal com `npm run dev`, vai conflitar (porta 5173 em uso → vai para 5174, mas o proxy vai apontar para 3000 errado). Use só o `vercel dev`.
+
+## Última sessão — 2026-06-22 (noite)
+
+- Trabalhando em: **corrigir tela navy em produção + confirmar install no celular**
+- Feito:
+  - **Causa da tela navy:** bundle de produção sem `VITE_SUPABASE_URL` (0 ocorrências no JS). O `vercel build` não injeta as `VITE_*`; só `npm run build` direto injeta. Confirmado baixando o bundle e fazendo `grep zmuiwfvoyfqpnbaxwcss`.
+  - **Fix do deploy:** buildar frontend com `npm run build --workspace=web` → sobrescrever `.vercel/output/static` pelo `web/dist` correto → `vercel deploy --prebuilt`. Bundle final `index-CIx_OBGS.js` com a URL embutida; `<title>OneVox</title>` no ar.
+  - **Fila travou de novo** (1 deploy passa por vez): zerar TUDO com `vercel remove $(ls) --yes` e redeployar uma vez resolve.
+  - **Criado `scripts/deploy.sh`** encapsulando o pipeline + sanity check `grep supabase.co`.
+  - **Celular:** usuário instalou o PWA e confirmou funcionando (login + correção + voz). ⚠️ Quem instalou com build quebrado precisa desinstalar/reinstalar (cache do Service Worker).
+  - **Esclarecido git vs deploy:** nosso deploy é `vercel deploy --prebuilt` (sobe do PC, NÃO via git push). git/GitHub é só backup/histórico, independente do que está no ar.
+- Parou em: **POC no ar, validada e instalada no celular.** Mudanças desta sessão (scripts/, CONTEXT, TODO) ainda não commitadas. Próximo: commit + Fase 5 (STT).
+
+## Deploy — playbook (resolvido)
+
+**Use o script:** `./scripts/deploy.sh` — encapsula todo o pipeline correto.
+
+**Duas armadilhas que esse script resolve:**
+
+1. **Tela navy / Supabase undefined:** o `vercel build` local NÃO injeta as `VITE_*`
+   no bundle do Vite (gera frontend quebrado, só fundo navy). Só `npm run build`
+   direto lê o `.env` da raiz (via `envDir:'..'`) e injeta. Por isso o script builda
+   o frontend com npm e **sobrescreve** `.vercel/output/static` pelo `web/dist` correto
+   antes do `vercel deploy --prebuilt`. Sanity check inclui `grep supabase.co` no bundle.
+
+2. **Fila de build travada:** build da nuvem trava no free tier (1 slot). O `--prebuilt`
+   pula isso. Mas só **1 deploy passa por vez após a fila estar zerada** — se sobrar um
+   deploy anterior ocupando o slot, o novo trava em "Deployment is building".
+   Fix: `vercel ls onevox-mobile | grep -oE 'onevox-mobile-[a-z0-9]+...' | sort -u | xargs vercel remove --yes`
+   (zera TUDO) e redeployar uma vez.
+
+**Não confiar em `vercel ls`** (CLI v54 mostra tudo `UNKNOWN` — bug). Confirmar com
+o `<title>` da home: `OneVox` = ok; `Deployment is building` = travado.
+
+## ⚠️ Cache do PWA no celular
+
+Quem instalou o PWA com um build quebrado tem o Service Worker servindo o bundle
+velho do cache. `registerType:'autoUpdate'` atualiza, mas pode exigir fechar e
+reabrir o app 1-2x. Garantido: desinstalar o ícone → reabrir a URL no navegador →
+reinstalar.
 
 ## Quirks conhecidos do ambiente
 
-- **vercel dev v54 em background/non-TTY:** API functions ficam penduradas. Rodar sempre em terminal interativo.
-- **`devCommand` removido do vercel.json:** sem ele, `vercel dev` serve só API. Frontend roda separado.
-- **Porta 5174:** se 5173 estiver em uso, Vite sobe em 5174. Verificar qual porta o terminal mostra.
-
-## Em aberto (decisões adiadas)
-
-- Modelo de contas de longo prazo (auto-cadastro + pagamento self-serve). Revisitar após POC.
-- Provedor de STT definitivo (AssemblyAI vs ElevenLabs Scribe). Decidir testando com áudio real.
-- Deploy de produção em `app.onevox.com` (Fase 6).
+- **`vercel dev` já roda o frontend:** detecta o `devCommand` salvo nos settings do projeto na Vercel (mesmo que não esteja no `vercel.json` local). Não precisa de segundo terminal.
+- **Porta correta:** acessar `localhost:3000` (porta do `vercel dev`), não `localhost:5173`.
+- **`vercel ls` mostra UNKNOWN:** bug do CLI v54 — não reflete o estado real dos builds na nuvem.
+- **`envDir: '..'` no vite.config.ts:** necessário para Vite encontrar o `.env` na raiz do monorepo ao rodar de dentro de `web/`.
 
 ## Decisões técnicas
 
@@ -68,27 +83,35 @@ Login de teste: `teste@onevox.com` / `onevox123`
 | Rate limit em Map em memória | Simples para POC; muda para Redis/Supabase depois | 2026-06-20 |
 | Supabase MCP para provisionamento | Projeto + migration aplicados sem intervenção manual | 2026-06-20 |
 | `VITE_SUPABASE_URL/ANON_KEY` (prefixo VITE_) | Vite só expõe ao bundle vars com prefixo VITE_ | 2026-06-20 |
-| `devCommand` removido do vercel.json | vercel dev v54 trava functions em background; frontend roda separado com proxy | 2026-06-21 |
-| Vite proxy `/api/*` → localhost:3000 | Unifica dev em localhost:5173 sem CORS; proxy só ativo em dev | 2026-06-21 |
+| `devCommand` removido do vercel.json | vercel dev v54 trava functions em background; mas o devCommand persiste nos settings da Vercel na nuvem | 2026-06-21 |
+| `envDir: '..'` no vite.config.ts | Vite rodando em `web/` precisa achar `.env` na raiz do monorepo | 2026-06-21 |
+| `npm run build --workspace=web` no buildCommand | Evita duplo npm install que travava o build na nuvem da Vercel | 2026-06-21 |
+| `vercel build` local + `vercel deploy --prebuilt` | Bypassa build na nuvem (que trava); build local leva ~4s | 2026-06-21 |
+| ElevenLabs multilingual v2 | Suporta português nativamente com qualquer voz | 2026-06-21 |
+| OpenAI gpt-4o-mini, temperature=0 | Correção conservadora, sem criatividade | 2026-06-21 |
+| voice_id sempre do banco (nunca do payload) | Segurança: cliente não pode escolher voz arbitrária | 2026-06-21 |
+| Deploy via `scripts/deploy.sh` (CLI prebuilt), NÃO via git push | Build da nuvem trava na fila; prebuilt sobe do PC direto. git/GitHub é só backup, desacoplado do deploy | 2026-06-22 |
+| Override de `.vercel/output/static` pelo `web/dist` do npm | `vercel build` não injeta `VITE_*` no bundle → tela navy; só `npm run build` injeta | 2026-06-22 |
 
 ## Dados do projeto Supabase
 - Projeto: `onevox` | Ref: `zmuiwfvoyfqpnbaxwcss` | Região: `sa-east-1`
 - URL: `https://zmuiwfvoyfqpnbaxwcss.supabase.co`
-- Painel: https://supabase.com/dashboard/project/zmuiwfvoyfqpnbaxwcss
+- Usuário de teste: `teste@onevox.com` / `onevox123` | voice: Cassiano (`ZhHddHRyxDXlhs2YdQUR`)
 
 ## Dados do projeto Vercel
 - Projeto: `onevox-mobile` | Org: `cassianopbs-projects`
 - Repo GitHub: `cassianopb/onevox-mobile`
-- Deploy automático a cada `git push` na branch `main`
+- Dashboard: https://vercel.com/cassianopbs-projects/onevox-mobile
 
 ## Arquitetura (resumo)
 
 ```
 PWA (React+Vite, instalável)  — web/
-   | HTTPS (só a nossa API)
+   | HTTPS
 Vercel Functions (proxy seguro) — api/
-   |-- STT (AssemblyAI / ElevenLabs Scribe)   → texto
-   |-- OpenAI                                   → correção conservadora
-   |-- ElevenLabs (voice_id do usuário)         → áudio (voz clonada)
-Supabase: Auth + perfis (voice_id, modo) + uso (log/custo)
+   |-- /api/tts        → ElevenLabs (voice_id do perfil no Supabase)
+   |-- /api/correcao   → OpenAI gpt-4o-mini (prompt conservador)
+   |-- /api/stt        → stub 501 (Fase 5)
+   |-- /api/health     → healthcheck
+Supabase: Auth + perfis (elevenlabs_voice_id, modo) + uso (log)
 ```
