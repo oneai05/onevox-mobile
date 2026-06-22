@@ -16,6 +16,7 @@ web-dist-safearea-check/
 web-dist-safearea-context-check/
 web-dist-tabbar-check/
 web-dist-tabbar-offset-check/
+web-dist-bottom-fill-check/
 expo-env.d.ts
 
 # Native
