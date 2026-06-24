@@ -19,6 +19,7 @@ web-dist-tabbar-offset-check/
 web-dist-bottom-fill-check/
 web-dist-sw-update-check/
 web-dist-root-bg-check/
+web-dist-mic-permission-check/
 expo-env.d.ts
 
 # Native

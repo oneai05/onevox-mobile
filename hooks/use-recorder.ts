@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Platform } from "react-native";
 import {
   RecordingPresets,
@@ -23,18 +23,6 @@ export function useRecorder() {
   const state = useAudioRecorderState(recorder);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const startedAtRef = useRef<number>(0);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const status = await requestRecordingPermissionsAsync();
-        setPermissionDenied(!status.granted);
-        await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: true });
-      } catch {
-        setPermissionDenied(true);
-      }
-    })();
-  }, []);
 
   const start = useCallback(async () => {
     try {
